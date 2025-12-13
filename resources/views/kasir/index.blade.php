@@ -451,6 +451,7 @@ function kasirApp() {
                 return;
             }
 
+            // ========== PEMBAYARAN TUNAI ==========
             if (this.metodePembayaran === 'tunai') {
                 if (this.kembalian < 0) {
                     alert('Uang tidak cukup!');
@@ -468,7 +469,8 @@ function kasirApp() {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
                         },
                         body: JSON.stringify({
                             items: this.keranjang.map(item => ({
@@ -480,6 +482,14 @@ function kasirApp() {
                             uang_diterima: this.uangDiterima
                         })
                     });
+
+                    // ✅ Check response
+                    if (!response.ok) {
+                        const text = await response.text();
+                        console.error('Response Status:', response.status);
+                        console.error('Response Body:', text);
+                        throw new Error(`HTTP ${response.status}: ${text.substring(0, 200)}`);
+                    }
 
                     const data = await response.json();
 
@@ -493,20 +503,25 @@ function kasirApp() {
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan saat memproses transaksi!');
+                    alert('Terjadi kesalahan: ' + error.message);
                 } finally {
                     this.isLoading = false;
                 }
             } 
+            // ========== PEMBAYARAN DIGITAL (MIDTRANS) ==========
             else if (this.metodePembayaran === 'digital') {
                 this.isLoading = true;
 
                 try {
+                    console.log('=== STEP 1: Creating Payment Token ===');
+                    
+                    // Step 1: Create Midtrans Token
                     const tokenResponse = await fetch('{{ route("kasir.create-token") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
                         },
                         body: JSON.stringify({
                             items: this.keranjang.map(item => ({
@@ -517,7 +532,40 @@ function kasirApp() {
                         })
                     });
 
+                    console.log('Token Response Status:', tokenResponse.status);
+                    console.log('Token Response Headers:', [...tokenResponse.headers.entries()]);
+
+                    // ✅ Check if response is OK
+                    if (!tokenResponse.ok) {
+                        const text = await tokenResponse.text();
+                        console.error('Token Response Text:', text);
+                        
+                        this.isLoading = false;
+                        
+                        // Try to parse as JSON if possible
+                        try {
+                            const errorData = JSON.parse(text);
+                            alert('Gagal membuat payment token: ' + (errorData.message || 'Unknown error'));
+                        } catch (e) {
+                            // Not JSON, show HTML error
+                            alert('Server error! Cek console untuk detail. Status: ' + tokenResponse.status);
+                            console.error('Full HTML Response:', text);
+                        }
+                        return;
+                    }
+
+                    // ✅ Check Content-Type
+                    const contentType = tokenResponse.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await tokenResponse.text();
+                        console.error('Non-JSON Response:', text);
+                        this.isLoading = false;
+                        alert('Server mengembalikan HTML error. Kemungkinan:\n1. Midtrans config belum diatur\n2. Route error\n3. Server error\n\nCek console (F12) untuk detail.');
+                        return;
+                    }
+
                     const tokenData = await tokenResponse.json();
+                    console.log('Token Data:', tokenData);
                     
                     if (!tokenData.success) {
                         this.isLoading = false;
@@ -528,14 +576,18 @@ function kasirApp() {
                     const snapToken = tokenData.snap_token;
                     const orderId = tokenData.order_id;
 
-                    console.log('Snap Token:', snapToken);
-                    console.log('Order ID:', orderId);
+                    console.log('✓ Snap Token received:', snapToken.substring(0, 20) + '...');
+                    console.log('✓ Order ID:', orderId);
 
+                    // Step 2: Create Transaction in DB
+                    console.log('=== STEP 2: Creating Transaction in DB ===');
+                    
                     const createResponse = await fetch('{{ route("kasir.process-payment") }}', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
                         },
                         body: JSON.stringify({
                             order_id: orderId,
@@ -546,51 +598,67 @@ function kasirApp() {
                         })
                     });
 
-                    const createData = await createResponse.json();
-                    this.isLoading = false;
+                    if (!createResponse.ok) {
+                        const text = await createResponse.text();
+                        console.error('Create Transaction Response:', text);
+                        this.isLoading = false;
+                        alert('Gagal membuat transaksi di database!');
+                        return;
+                    }
 
+                    const createData = await createResponse.json();
+                    console.log('✓ Transaction Created:', createData);
+                    
                     if (!createData.success) {
+                        this.isLoading = false;
                         alert('Gagal membuat transaksi: ' + createData.message);
                         return;
                     }
 
-                    console.log('Transaction Created:', createData.transaksi_id);
+                    this.isLoading = false;
+
+                    // Step 3: Open Midtrans Snap
+                    console.log('=== STEP 3: Opening Midtrans Snap ===');
+                    
+                    if (typeof window.snap === 'undefined') {
+                        alert('Midtrans Snap belum load! Refresh halaman dan coba lagi.');
+                        return;
+                    }
 
                     window.snap.pay(snapToken, {
                         onSuccess: (result) => {
-                            console.log('Payment Success:', result);
-                            this.handlePaymentSuccess(orderId);
+                            console.log('✓ Payment Success:', result);
+                            
+                            this.transaksiId = createData.transaksi_id;
+                            this.cetakUrl = '{{ url("kasir/transaksi") }}/' + createData.transaksi_id + '/cetak';
+                            this.showSuccessModal = true;
                         },
                         onPending: (result) => {
-                            console.log('Payment Pending:', result);
-                            alert('Pembayaran pending. Silakan selesaikan pembayaran Anda.');
+                            console.log('⏳ Payment Pending:', result);
+                            
+                            alert('Pembayaran pending. Transaksi ID: ' + createData.transaksi_id + '\n\nSilakan selesaikan pembayaran Anda.');
                             this.transaksiBaru();
                         },
                         onError: (result) => {
-                            console.error('Payment Error:', result);
-                            alert('Pembayaran gagal! Error: ' + JSON.stringify(result));
+                            console.error('❌ Payment Error:', result);
+                            
+                            alert('Pembayaran gagal!\n\nDetail: ' + (result.status_message || 'Unknown error'));
                         },
                         onClose: () => {
-                            console.log('Popup closed');
+                            console.log('🔒 Popup closed by user');
+                            
+                            alert('Popup pembayaran ditutup. Transaksi dalam status pending.');
                         }
                     });
 
                 } catch (error) {
                     this.isLoading = false;
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan: ' + error.message);
+                    console.error('❌ Critical Error:', error);
+                    console.error('Error Stack:', error.stack);
+                    
+                    alert('Terjadi kesalahan:\n\n' + error.message + '\n\nCek console (F12) untuk detail lengkap.');
                 }
             }
-        },
-
-        handlePaymentSuccess(orderId) {
-            this.transaksiId = orderId;
-            this.cetakUrl = '';
-            this.showSuccessModal = true;
-            
-            setTimeout(() => {
-                console.log('Refreshing page for webhook sync...');
-            }, 3000);
         },
 
         cetakStruk() {

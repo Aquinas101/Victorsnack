@@ -53,20 +53,51 @@ class KasirController extends Controller
     }
 
     /**
-     * Create Midtrans payment token
+     * ✅ FIXED: Create Midtrans payment token with detailed logging
      */
     public function createPaymentToken(Request $request)
     {
-        $request->validate([
-            'items' => 'required|array|min:1',
-            'total_harga' => 'required|numeric|min:0',
-        ]);
-
+        // ✅ Log untuk debugging
+        Log::info('=== CREATE TOKEN REQUEST START ===');
+        Log::info('Request URL: ' . $request->fullUrl());
+        Log::info('Request Method: ' . $request->method());
+        Log::info('Request Input: ' . json_encode($request->all()));
+        Log::info('User ID: ' . Auth::id());
+        
         try {
-            // Generate unique order ID
-            $orderId = 'TRX-' . time() . '-' . Auth::id();
+            // Validasi input
+            $request->validate([
+                'items' => 'required|array|min:1',
+                'total_harga' => 'required|numeric|min:0',
+            ]);
 
-            // Prepare item details for Midtrans
+            // ✅ CRITICAL: Cek config Midtrans
+            $serverKey = config('midtrans.server_key');
+            $clientKey = config('midtrans.client_key');
+            
+            Log::info('Midtrans Config Check:', [
+                'server_key_exists' => !empty($serverKey),
+                'server_key_length' => strlen($serverKey ?? ''),
+                'client_key_exists' => !empty($clientKey),
+                'is_production' => config('midtrans.is_production'),
+                'config_file_exists' => file_exists(config_path('midtrans.php')),
+                'env_server_key' => env('MIDTRANS_SERVER_KEY') ? 'SET' : 'NULL'
+            ]);
+
+            if (empty($serverKey) || $serverKey === null) {
+                Log::error('❌ SERVER KEY IS NULL OR EMPTY!');
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Konfigurasi Midtrans error: Server Key tidak ditemukan. Pastikan file .env dan config/midtrans.php sudah diatur dengan benar.'
+                ], 500);
+            }
+
+            // Generate order ID
+            $orderId = 'TRX-' . time() . '-' . Auth::id();
+            Log::info('Generated Order ID: ' . $orderId);
+
+            // Prepare item details
             $itemDetails = [];
             foreach ($request->items as $item) {
                 $varian = VarianProduk::with('produk')->findOrFail($item['id_varian']);
@@ -79,7 +110,9 @@ class KasirController extends Controller
                 ];
             }
 
-            // Prepare transaction details
+            Log::info('Item Details:', $itemDetails);
+
+            // Transaction details
             $transactionDetails = [
                 'order_id' => $orderId,
                 'gross_amount' => (int) $request->total_harga,
@@ -92,26 +125,22 @@ class KasirController extends Controller
                 'phone' => '08123456789',
             ];
 
-            // Prepare Snap API payload
+            // Snap API params
             $params = [
                 'transaction_details' => $transactionDetails,
                 'item_details' => $itemDetails,
                 'customer_details' => $customerDetails,
-                'enabled_payments' => ['credit_card', 'gopay', 'shopeepay', 'other_qris', 'bca_va', 'bni_va', 'bri_va', 'permata_va'],
-                'callbacks' => [
-                    'finish' => route('kasir.payment-finish')
-                ]
+                'enabled_payments' => ['gopay', 'shopeepay', 'other_qris', 'bca_va', 'bni_va', 'bri_va'],
             ];
+
+            Log::info('Requesting Snap Token from Midtrans...');
+            Log::info('Params:', $params);
 
             // Get Snap Token
             $snapToken = Snap::getSnapToken($params);
 
-            // Log untuk debugging
-            Log::info('Midtrans Token Created', [
-                'order_id' => $orderId,
-                'snap_token' => $snapToken,
-                'user_id' => Auth::id()
-            ]);
+            Log::info('✓ Snap Token Created Successfully!');
+            Log::info('Token (first 20 chars): ' . substr($snapToken, 0, 20) . '...');
 
             return response()->json([
                 'success' => true,
@@ -120,14 +149,15 @@ class KasirController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Midtrans Token Error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            Log::error('=== CREATE TOKEN ERROR ===');
+            Log::error('Error Message: ' . $e->getMessage());
+            Log::error('Error File: ' . $e->getFile());
+            Log::error('Error Line: ' . $e->getLine());
+            Log::error('Error Trace: ' . $e->getTraceAsString());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal membuat payment token: ' . $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -248,7 +278,6 @@ class KasirController extends Controller
             'transaction_status' => $transactionStatus
         ]);
 
-        // Redirect ke halaman kasir dengan pesan
         if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
             return redirect()->route('kasir.index')->with('success', 'Pembayaran berhasil! Order ID: ' . $orderId);
         } else if ($transactionStatus == 'pending') {
@@ -264,11 +293,9 @@ class KasirController extends Controller
     public function midtransCallback(Request $request)
     {
         try {
-            // Set Config
             Config::$serverKey = config('midtrans.server_key');
             Config::$isProduction = config('midtrans.is_production');
 
-            // Get notification dari Midtrans
             $notification = new Notification();
 
             $orderId = $notification->order_id;
@@ -277,7 +304,6 @@ class KasirController extends Controller
             $paymentType = $notification->payment_type;
             $grossAmount = $notification->gross_amount;
 
-            // Log notification
             Log::info('Midtrans Notification Received', [
                 'order_id' => $orderId,
                 'transaction_status' => $transactionStatus,
@@ -289,7 +315,6 @@ class KasirController extends Controller
 
             DB::beginTransaction();
 
-            // ✅ Cari transaksi berdasarkan order_id_midtrans
             $transaksi = Transaksi::where('order_id_midtrans', $orderId)->first();
 
             if (!$transaksi) {
@@ -301,10 +326,7 @@ class KasirController extends Controller
                 ], 404);
             }
 
-            // Status lama
             $oldStatus = $transaksi->status_transaksi;
-
-            // Tentukan status transaksi baru
             $newStatus = 'pending';
             
             if ($transactionStatus == 'capture') {
@@ -326,12 +348,9 @@ class KasirController extends Controller
                 'transaction_status' => $transactionStatus
             ]);
 
-            // Update status transaksi
-            $transaksi->update([
-                'status_transaksi' => $newStatus
-            ]);
+            $transaksi->update(['status_transaksi' => $newStatus]);
 
-            // ✅ KURANGI STOK JIKA STATUS BERUBAH DARI PENDING/GAGAL KE BERHASIL
+            // Kurangi stok jika status berubah ke berhasil
             if ($newStatus === 'berhasil' && $oldStatus !== 'berhasil') {
                 Log::info('Attempting to reduce stock', ['order_id' => $orderId]);
                 
@@ -342,7 +361,6 @@ class KasirController extends Controller
                     if ($stok) {
                         $totalGramDibeli = $varian->berat * $detail->jumlah;
                         
-                        // Validasi stok tersedia
                         if (!$stok->cekStokTersedia($totalGramDibeli)) {
                             DB::rollBack();
                             Log::error('Insufficient Stock', [
@@ -354,11 +372,10 @@ class KasirController extends Controller
                             
                             return response()->json([
                                 'success' => false,
-                                'message' => 'Stok tidak mencukupi untuk produk: ' . $varian->produk->nama_produk
+                                'message' => 'Stok tidak mencukupi'
                             ], 400);
                         }
                         
-                        // Kurangi stok
                         $stok->kurangiStok($totalGramDibeli);
                         
                         Log::info('Stock Reduced', [
@@ -413,7 +430,6 @@ class KasirController extends Controller
 
         DB::beginTransaction();
         try {
-            // Parse items
             $items = $request->items;
 
             // Validasi stok
@@ -451,16 +467,16 @@ class KasirController extends Controller
             $orderParts = explode('-', $request->order_id);
             $userId = end($orderParts);
 
-            // Buat transaksi dengan status pending (stok belum dikurangi)
+            // Buat transaksi dengan status pending
             $transaksi = Transaksi::create([
                 'order_id_midtrans' => $request->order_id,
                 'id_pengguna' => $userId,
                 'total_harga' => $totalHarga,
                 'metode_pembayaran' => 'dompet_digital',
-                'status_transaksi' => 'pending', // ⚠️ Status pending, stok BELUM dikurangi
+                'status_transaksi' => 'pending',
             ]);
 
-            // Simpan detail transaksi (TANPA kurangi stok dulu)
+            // Simpan detail transaksi
             foreach ($items as $item) {
                 $varian = VarianProduk::findOrFail($item['id_varian']);
                 
@@ -477,8 +493,7 @@ class KasirController extends Controller
             Log::info('Midtrans Transaction Created (Pending)', [
                 'order_id' => $request->order_id,
                 'transaksi_id' => $transaksi->id_transaksi,
-                'status' => 'pending',
-                'note' => 'Stock will be reduced when webhook receives payment success'
+                'status' => 'pending'
             ]);
 
             return response()->json([
