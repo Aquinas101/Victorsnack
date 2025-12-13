@@ -418,105 +418,160 @@ class KasirController extends Controller
         }
     }
 
-    /**
-     * ✅ Proses pembayaran Midtrans setelah user klik bayar di frontend
-     */
-    public function processMidtransPayment(Request $request)
-    {
-        $request->validate([
-            'order_id' => 'required|string',
-            'items' => 'required|array|min:1',
+/**
+ * ✅ FIXED: Proses pembayaran Midtrans setelah user klik bayar di frontend
+ */
+public function processMidtransPayment(Request $request)
+{
+    // ✅ Log untuk debugging
+    Log::info('=== PROCESS PAYMENT REQUEST ===', [
+        'order_id' => $request->order_id,
+        'items_count' => count($request->items ?? []),
+        'items' => $request->items
+    ]);
+
+    $request->validate([
+        'order_id' => 'required|string',
+        'items' => 'required|array|min:1',
+        'items.*.id_varian' => 'required|exists:varian_produk,id_varian',
+        'items.*.jumlah' => 'required|integer|min:1',
+    ]);
+
+    DB::beginTransaction();
+    try {
+        $items = $request->items;
+
+        // Validasi stok
+        Log::info('Validating stock...');
+        foreach ($items as $item) {
+            $varian = VarianProduk::with('produk')->findOrFail($item['id_varian']);
+            $stok = Stok::where('id_produk', $varian->id_produk)->first();
+            
+            if (!$stok) {
+                DB::rollBack();
+                Log::error('Stock not found', ['produk' => $varian->produk->nama_produk]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Stok tidak ditemukan untuk produk: ' . $varian->produk->nama_produk
+                ], 400);
+            }
+            
+            $totalGramDibeli = $varian->berat * $item['jumlah'];
+            
+            if (!$stok->cekStokTersedia($totalGramDibeli)) {
+                DB::rollBack();
+                Log::error('Insufficient stock', [
+                    'produk' => $varian->produk->nama_produk,
+                    'required' => $totalGramDibeli,
+                    'available' => $stok->getStokDalamGram()
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Stok tidak mencukupi untuk produk: ' . $varian->produk->nama_produk
+                ], 400);
+            }
+        }
+
+        Log::info('Stock validation passed');
+
+        // Hitung total
+        $totalHarga = 0;
+        foreach ($items as $item) {
+            $varian = VarianProduk::findOrFail($item['id_varian']);
+            $totalHarga += $varian->harga * $item['jumlah'];
+        }
+
+        Log::info('Total calculated', ['total_harga' => $totalHarga]);
+
+        // Parse user ID dari order_id (format: TRX-timestamp-userId)
+        $orderParts = explode('-', $request->order_id);
+        $userId = end($orderParts);
+
+        Log::info('Parsed User ID from Order ID', [
+            'order_id' => $request->order_id,
+            'parsed_user_id' => $userId,
+            'current_auth_id' => Auth::id()
         ]);
 
-        DB::beginTransaction();
-        try {
-            $items = $request->items;
-
-            // Validasi stok
-            foreach ($items as $item) {
-                $varian = VarianProduk::with('produk')->findOrFail($item['id_varian']);
-                $stok = Stok::where('id_produk', $varian->id_produk)->first();
-                
-                if (!$stok) {
-                    DB::rollBack();
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Stok tidak ditemukan untuk produk: ' . $varian->produk->nama_produk
-                    ], 400);
-                }
-                
-                $totalGramDibeli = $varian->berat * $item['jumlah'];
-                
-                if (!$stok->cekStokTersedia($totalGramDibeli)) {
-                    DB::rollBack();
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Stok tidak mencukupi untuk produk: ' . $varian->produk->nama_produk
-                    ], 400);
-                }
-            }
-
-            // Hitung total
-            $totalHarga = 0;
-            foreach ($items as $item) {
-                $varian = VarianProduk::findOrFail($item['id_varian']);
-                $totalHarga += $varian->harga * $item['jumlah'];
-            }
-
-            // Parse user ID dari order_id
-            $orderParts = explode('-', $request->order_id);
-            $userId = end($orderParts);
-
-            // Buat transaksi dengan status pending
-            $transaksi = Transaksi::create([
-                'order_id_midtrans' => $request->order_id,
-                'id_pengguna' => $userId,
-                'total_harga' => $totalHarga,
-                'metode_pembayaran' => 'dompet_digital',
-                'status_transaksi' => 'pending',
-            ]);
-
-            // Simpan detail transaksi
-            foreach ($items as $item) {
-                $varian = VarianProduk::findOrFail($item['id_varian']);
-                
-                DetailTransaksi::create([
-                    'id_transaksi' => $transaksi->id_transaksi,
-                    'id_varian' => $item['id_varian'],
-                    'jumlah' => $item['jumlah'],
-                    'subtotal' => $varian->harga * $item['jumlah'],
-                ]);
-            }
-
-            DB::commit();
-
-            Log::info('Midtrans Transaction Created (Pending)', [
+        // ✅ PENTING: Pastikan user ID valid
+        if (!is_numeric($userId) || $userId <= 0) {
+            Log::error('Invalid User ID parsed from order_id', [
                 'order_id' => $request->order_id,
-                'transaksi_id' => $transaksi->id_transaksi,
-                'status' => 'pending'
+                'parsed_value' => $userId
             ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Transaksi berhasil dibuat (pending payment)',
-                'transaksi_id' => $transaksi->id_transaksi
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
             
-            Log::error('Process Midtrans Payment Error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+            // Fallback ke Auth::id()
+            $userId = Auth::id();
+            Log::info('Using Auth::id() as fallback', ['user_id' => $userId]);
+        }
+
+        // ✅ Buat transaksi dengan status pending (stok BELUM dikurangi)
+        Log::info('Creating transaction...', [
+            'order_id_midtrans' => $request->order_id,
+            'id_pengguna' => $userId,
+            'total_harga' => $totalHarga,
+            'status' => 'pending'
+        ]);
+
+        $transaksi = Transaksi::create([
+            'order_id_midtrans' => $request->order_id,
+            'id_pengguna' => $userId,
+            'total_harga' => $totalHarga,
+            'metode_pembayaran' => 'dompet_digital',
+            'status_transaksi' => 'pending',
+        ]);
+
+        Log::info('✓ Transaction created', ['transaksi_id' => $transaksi->id_transaksi]);
+
+        // ✅ Simpan detail transaksi (TANPA kurangi stok dulu)
+        Log::info('Creating transaction details...');
+        foreach ($items as $item) {
+            $varian = VarianProduk::findOrFail($item['id_varian']);
+            
+            DetailTransaksi::create([
+                'id_transaksi' => $transaksi->id_transaksi,
+                'id_varian' => $item['id_varian'],
+                'jumlah' => $item['jumlah'],
+                'subtotal' => $varian->harga * $item['jumlah'],
             ]);
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memproses pembayaran: ' . $e->getMessage()
-            ], 500);
+            Log::info('Detail created', [
+                'varian' => $item['id_varian'],
+                'jumlah' => $item['jumlah']
+            ]);
         }
-    }
 
+        DB::commit();
+
+        Log::info('✓✓✓ Transaction Created Successfully (Pending)', [
+            'order_id' => $request->order_id,
+            'transaksi_id' => $transaksi->id_transaksi,
+            'status' => 'pending',
+            'note' => 'Stock will be reduced when webhook receives payment success'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Transaksi berhasil dibuat (pending payment)',
+            'transaksi_id' => $transaksi->id_transaksi
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        Log::error('❌ Process Midtrans Payment Error', [
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal memproses pembayaran: ' . $e->getMessage()
+        ], 500);
+    }
+}
     /**
      * Get detail varian (untuk AJAX)
      */
