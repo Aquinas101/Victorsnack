@@ -2,16 +2,38 @@
 
 @section('content')
 <div class="container mx-auto">
-    <!-- Header -->
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">
-            <i class="fas fa-money-bill-wave text-red-600 mr-2"></i>Laporan Keuangan
-        </h1>
-        <p class="text-gray-600 mt-1">Ringkasan keuangan dan performa kasir</p>
+    <!-- Header with Export Buttons -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+                <i class="fas fa-money-bill-wave text-red-600 mr-2"></i>Laporan Keuangan
+            </h1>
+            <p class="text-gray-600 mt-1">Ringkasan keuangan dan performa kasir</p>
+        </div>
+        
+        <!-- Export Buttons -->
+        <div class="flex gap-2 no-print">
+            <form action="{{ route('admin.laporan.keuangan.pdf') }}" method="GET" class="inline">
+                <input type="hidden" name="start_date" value="{{ $startDate->format('Y-m-d') }}">
+                <input type="hidden" name="end_date" value="{{ $endDate->format('Y-m-d') }}">
+                
+                <button type="submit" 
+                        class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg shadow-lg transition duration-200 flex items-center gap-2 font-semibold">
+                    <i class="fas fa-file-pdf text-xl"></i>
+                    <span>Download PDF</span>
+                </button>
+            </form>
+            
+            <button onclick="window.print()" 
+                    class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg shadow-lg transition duration-200 flex items-center gap-2 font-semibold">
+                <i class="fas fa-print text-xl"></i>
+                <span>Print</span>
+            </button>
+        </div>
     </div>
 
     <!-- Filter Periode -->
-    <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+    <div class="bg-white rounded-xl shadow-lg p-6 mb-6 no-print">
         <form action="{{ route('admin.laporan.keuangan') }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="md:col-span-2">
                 <label class="block text-xs font-medium text-gray-700 mb-1">Tanggal Mulai</label>
@@ -105,7 +127,7 @@
                         <div class="flex justify-between items-center mb-2">
                             <div class="flex items-center">
                                 <i class="fas {{ $icon }} text-{{ $color }}-600 mr-2"></i>
-                                <span class="font-semibold capitalize">{{ ucfirst($metode->metode_pembayaran) }}</span>
+                                <span class="font-semibold capitalize">{{ ucfirst(str_replace('_', ' ', $metode->metode_pembayaran)) }}</span>
                             </div>
                             <span class="text-sm text-gray-600">{{ $metode->jumlah_transaksi }} transaksi</span>
                         </div>
@@ -216,4 +238,22 @@
         </div>
     </div>
 </div>
+
+<!-- Print Styles -->
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .container {
+        max-width: 100%;
+    }
+}
+</style>
 @endsection

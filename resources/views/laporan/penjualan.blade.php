@@ -2,12 +2,40 @@
 
 @section('content')
 <div class="container mx-auto">
-    <!-- Header -->
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-800">
-            <i class="fas fa-chart-line text-red-600 mr-2"></i>Laporan Penjualan
-        </h1>
-        <p class="text-gray-600 mt-1">Laporan detail transaksi penjualan dengan filter periode</p>
+    <!-- Header with Export Buttons -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+                <i class="fas fa-chart-line text-red-600 mr-2"></i>Laporan Penjualan
+            </h1>
+            <p class="text-gray-600 mt-1">Laporan detail transaksi penjualan dengan filter periode</p>
+        </div>
+        
+        <!-- Export Buttons -->
+        <div class="flex gap-2 no-print">
+            <form action="{{ route('admin.laporan.penjualan.pdf') }}" method="GET" class="inline">
+                <input type="hidden" name="start_date" value="{{ $startDate->format('Y-m-d') }}">
+                <input type="hidden" name="end_date" value="{{ $endDate->format('Y-m-d') }}">
+                @if(request('kasir'))
+                    <input type="hidden" name="kasir" value="{{ request('kasir') }}">
+                @endif
+                @if(request('metode'))
+                    <input type="hidden" name="metode" value="{{ request('metode') }}">
+                @endif
+                
+                <button type="submit" 
+                        class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg shadow-lg transition duration-200 flex items-center gap-2 font-semibold">
+                    <i class="fas fa-file-pdf text-xl"></i>
+                    <span>Download PDF</span>
+                </button>
+            </form>
+            
+            <button onclick="window.print()" 
+                    class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg shadow-lg transition duration-200 flex items-center gap-2 font-semibold">
+                <i class="fas fa-print text-xl"></i>
+                <span>Print</span>
+            </button>
+        </div>
     </div>
 
     <!-- Summary Cards -->
@@ -99,7 +127,7 @@
     <!-- Filter & Table -->
     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
         <!-- Filter Bar -->
-        <div class="p-6 border-b border-gray-200 bg-gray-50">
+        <div class="p-6 border-b border-gray-200 bg-gray-50 no-print">
             <form action="{{ route('admin.laporan.penjualan') }}" method="GET" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <!-- Tanggal Mulai -->
                 <div>
@@ -163,7 +191,7 @@
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase">Item</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase">Total</th>
                         <th class="px-6 py-4 text-left text-xs font-semibold uppercase">Metode</th>
-                        <th class="px-6 py-4 text-center text-xs font-semibold uppercase">Aksi</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold uppercase no-print">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -193,7 +221,7 @@
                                 <span class="text-orange-600"><i class="fas fa-wallet mr-1"></i>E-Wallet</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-center">
+                        <td class="px-6 py-4 text-center no-print">
                             <a href="{{ route('admin.transaksi.show', $transaksi->id_transaksi) }}" 
                                class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-xs">
                                 <i class="fas fa-eye mr-1"></i>Detail
@@ -214,10 +242,28 @@
 
         <!-- Pagination -->
         @if($transaksis->hasPages())
-        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 no-print">
             {{ $transaksis->appends(request()->query())->links() }}
         </div>
         @endif
     </div>
 </div>
+
+<!-- Print Styles -->
+<style>
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    .container {
+        max-width: 100%;
+    }
+}
+</style>
 @endsection
