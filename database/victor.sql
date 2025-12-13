@@ -57,9 +57,11 @@ CREATE TABLE `detail_transaksi` (
   KEY `detail_transaksi_id_varian_foreign` (`id_varian`),
   CONSTRAINT `detail_transaksi_id_transaksi_foreign` FOREIGN KEY (`id_transaksi`) REFERENCES `transaksi` (`id_transaksi`) ON DELETE CASCADE,
   CONSTRAINT `detail_transaksi_id_varian_foreign` FOREIGN KEY (`id_varian`) REFERENCES `varian_produk` (`id_varian`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `detail_transaksi` */
+
+insert  into `detail_transaksi`(`id_detail`,`id_transaksi`,`id_varian`,`jumlah`,`subtotal`) values (1,1,1,2,2000.00),(2,4,1,2,2000.00);
 
 /*Table structure for table `failed_jobs` */
 
@@ -184,9 +186,11 @@ CREATE TABLE `stok` (
   PRIMARY KEY (`id_stok`),
   KEY `stok_id_produk_foreign` (`id_produk`),
   CONSTRAINT `stok_id_produk_foreign` FOREIGN KEY (`id_produk`) REFERENCES `produk` (`id_produk`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `stok` */
+
+insert  into `stok`(`id_stok`,`id_produk`,`jumlah`,`satuan`,`update_at`) values (1,1,10.00,'kg','2025-12-13 10:23:47');
 
 /*Table structure for table `transaksi` */
 
@@ -203,9 +207,11 @@ CREATE TABLE `transaksi` (
   PRIMARY KEY (`id_transaksi`),
   KEY `transaksi_id_pengguna_foreign` (`id_pengguna`),
   CONSTRAINT `transaksi_id_pengguna_foreign` FOREIGN KEY (`id_pengguna`) REFERENCES `pengguna` (`id_pengguna`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `transaksi` */
+
+insert  into `transaksi`(`id_transaksi`,`order_id_midtrans`,`id_pengguna`,`total_harga`,`metode_pembayaran`,`tanggal_transaksi`,`status_transaksi`) values (1,'TRX-1765621574-4',4,2000.00,'dompet_digital','2025-12-13 17:26:15','berhasil'),(4,'TRX-1765622193-4',4,2000.00,'dompet_digital','2025-12-13 17:36:33','pending');
 
 /*Table structure for table `varian_produk` */
 
@@ -219,9 +225,11 @@ CREATE TABLE `varian_produk` (
   PRIMARY KEY (`id_varian`),
   KEY `varian_produk_id_produk_foreign` (`id_produk`),
   CONSTRAINT `varian_produk_id_produk_foreign` FOREIGN KEY (`id_produk`) REFERENCES `produk` (`id_produk`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `varian_produk` */
+
+insert  into `varian_produk`(`id_varian`,`id_produk`,`berat`,`harga`) values (1,1,250,1000.00);
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
