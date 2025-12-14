@@ -440,6 +440,18 @@ function kasirApp() {
             this.kembalian = this.uangDiterima - this.totalHarga;
         },
 
+        // ✅ FUNGSI HELPER UNTUK FORCE HTTPS
+        getSecureUrl(path) {
+            const currentUrl = window.location.href;
+            const isHttps = currentUrl.startsWith('https://');
+            
+            if (isHttps && path.startsWith('http://')) {
+                return path.replace('http://', 'https://');
+            }
+            
+            return path;
+        },
+
         async prosesTransaksi() {
             if (this.keranjang.length === 0) {
                 alert('Keranjang kosong!');
@@ -465,7 +477,10 @@ function kasirApp() {
                 this.isLoading = true;
 
                 try {
-                    const response = await fetch('{{ route("kasir.proses") }}', {
+                    // ✅ FIX: Paksa HTTPS untuk fetch URL
+                    const url = this.getSecureUrl('{{ route("kasir.proses") }}');
+                    
+                    const response = await fetch(url, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -483,7 +498,6 @@ function kasirApp() {
                         })
                     });
 
-                    // ✅ Check response
                     if (!response.ok) {
                         const text = await response.text();
                         console.error('Response Status:', response.status);
@@ -515,8 +529,11 @@ function kasirApp() {
                 try {
                     console.log('=== STEP 1: Creating Payment Token ===');
                     
+                    // ✅ FIX: Paksa HTTPS untuk fetch URL
+                    const tokenUrl = this.getSecureUrl('{{ route("kasir.create-token") }}');
+                    
                     // Step 1: Create Midtrans Token
-                    const tokenResponse = await fetch('{{ route("kasir.create-token") }}', {
+                    const tokenResponse = await fetch(tokenUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -535,26 +552,22 @@ function kasirApp() {
                     console.log('Token Response Status:', tokenResponse.status);
                     console.log('Token Response Headers:', [...tokenResponse.headers.entries()]);
 
-                    // ✅ Check if response is OK
                     if (!tokenResponse.ok) {
                         const text = await tokenResponse.text();
                         console.error('Token Response Text:', text);
                         
                         this.isLoading = false;
                         
-                        // Try to parse as JSON if possible
                         try {
                             const errorData = JSON.parse(text);
                             alert('Gagal membuat payment token: ' + (errorData.message || 'Unknown error'));
                         } catch (e) {
-                            // Not JSON, show HTML error
                             alert('Server error! Cek console untuk detail. Status: ' + tokenResponse.status);
                             console.error('Full HTML Response:', text);
                         }
                         return;
                     }
 
-                    // ✅ Check Content-Type
                     const contentType = tokenResponse.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const text = await tokenResponse.text();
@@ -582,7 +595,10 @@ function kasirApp() {
                     // Step 2: Create Transaction in DB
                     console.log('=== STEP 2: Creating Transaction in DB ===');
                     
-                    const createResponse = await fetch('{{ route("kasir.process-payment") }}', {
+                    // ✅ FIX: Paksa HTTPS untuk fetch URL
+                    const createUrl = this.getSecureUrl('{{ route("kasir.process-payment") }}');
+                    
+                    const createResponse = await fetch(createUrl, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

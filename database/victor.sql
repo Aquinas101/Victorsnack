@@ -57,11 +57,11 @@ CREATE TABLE `detail_transaksi` (
   KEY `detail_transaksi_id_varian_foreign` (`id_varian`),
   CONSTRAINT `detail_transaksi_id_transaksi_foreign` FOREIGN KEY (`id_transaksi`) REFERENCES `transaksi` (`id_transaksi`) ON DELETE CASCADE,
   CONSTRAINT `detail_transaksi_id_varian_foreign` FOREIGN KEY (`id_varian`) REFERENCES `varian_produk` (`id_varian`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `detail_transaksi` */
 
-insert  into `detail_transaksi`(`id_detail`,`id_transaksi`,`id_varian`,`jumlah`,`subtotal`) values (1,1,1,2,2000.00),(2,4,1,2,2000.00);
+insert  into `detail_transaksi`(`id_detail`,`id_transaksi`,`id_varian`,`jumlah`,`subtotal`) values (1,1,1,2,2000.00),(2,4,1,2,2000.00),(3,5,1,1,1000.00),(4,6,1,1,1000.00),(5,7,1,1,1000.00),(6,8,1,1,1000.00),(7,9,1,1,1000.00),(8,10,1,1,1000.00),(9,11,1,1,1000.00),(10,12,1,1,1000.00),(11,13,1,1,1000.00),(12,14,1,1,1000.00),(13,15,1,1,1000.00),(14,16,1,1,1000.00),(15,17,1,1,1000.00),(16,18,1,1,1000.00),(17,19,1,1,1000.00);
 
 /*Table structure for table `failed_jobs` */
 
@@ -207,11 +207,11 @@ CREATE TABLE `transaksi` (
   PRIMARY KEY (`id_transaksi`),
   KEY `transaksi_id_pengguna_foreign` (`id_pengguna`),
   CONSTRAINT `transaksi_id_pengguna_foreign` FOREIGN KEY (`id_pengguna`) REFERENCES `pengguna` (`id_pengguna`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `transaksi` */
 
-insert  into `transaksi`(`id_transaksi`,`order_id_midtrans`,`id_pengguna`,`total_harga`,`metode_pembayaran`,`tanggal_transaksi`,`status_transaksi`) values (1,'TRX-1765621574-4',4,2000.00,'dompet_digital','2025-12-13 17:26:15','berhasil'),(4,'TRX-1765622193-4',4,2000.00,'dompet_digital','2025-12-13 17:36:33','pending');
+insert  into `transaksi`(`id_transaksi`,`order_id_midtrans`,`id_pengguna`,`total_harga`,`metode_pembayaran`,`tanggal_transaksi`,`status_transaksi`) values (1,'TRX-1765621574-4',4,2000.00,'dompet_digital','2025-12-13 17:26:15','berhasil'),(4,'TRX-1765622193-4',4,2000.00,'dompet_digital','2025-12-13 17:36:33','pending'),(5,'TRX-1765631499-4',4,1000.00,'dompet_digital','2025-12-13 20:11:40','pending'),(6,'TRX-1765632021-4',4,1000.00,'dompet_digital','2025-12-13 20:20:22','pending'),(7,'TRX-1765632167-4',4,1000.00,'dompet_digital','2025-12-13 20:22:48','pending'),(8,'TRX-1765632743-4',4,1000.00,'dompet_digital','2025-12-13 20:32:24','pending'),(9,'TRX-1765632935-4',4,1000.00,'dompet_digital','2025-12-13 20:35:36','pending'),(10,'TRX-1765633904-4',4,1000.00,'dompet_digital','2025-12-13 20:51:46','pending'),(11,'TRX-1765710756-4',4,1000.00,'dompet_digital','2025-12-14 18:12:40','pending'),(12,'TRX-1765710768-4',4,1000.00,'dompet_digital','2025-12-14 18:12:52','pending'),(13,'TRX-1765710796-4',4,1000.00,'dompet_digital','2025-12-14 18:13:18','pending'),(14,'TRX-1765711030-4',4,1000.00,'dompet_digital','2025-12-14 18:17:14','pending'),(15,'TRX-1765711749-4',4,1000.00,'dompet_digital','2025-12-14 18:29:12','pending'),(16,'TRX-1765712565-4',4,1000.00,'dompet_digital','2025-12-14 18:42:50','pending'),(17,'TRX-1765713096-4',4,1000.00,'dompet_digital','2025-12-14 18:51:39','pending'),(18,'TRX-1765713245-4',4,1000.00,'dompet_digital','2025-12-14 18:54:08','pending'),(19,'TRX-1765718263-4',4,1000.00,'dompet_digital','2025-12-14 20:17:45','pending');
 
 /*Table structure for table `varian_produk` */
 

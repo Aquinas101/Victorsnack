@@ -19,8 +19,10 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 // 🔹 Logout
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// ✅ Midtrans Webhook (HARUS di luar middleware auth karena dipanggil oleh server Midtrans)
-Route::post('/midtrans/notification', [KasirController::class, 'midtransCallback'])->name('midtrans.notification');
+// ✅✅✅ MIDTRANS WEBHOOK (HARUS di luar middleware auth karena dipanggil oleh server Midtrans)
+// PENTING: URL ini HARUS sama dengan yang di set di Midtrans Dashboard
+Route::post('/kasir/midtrans-callback', [KasirController::class, 'midtransCallback'])
+    ->name('kasir.midtrans-callback');
 
 // 🔸 PEMILIK (ADMIN) - Akses Penuh
 Route::middleware(['auth', 'role:pemilik'])->prefix('admin')->name('admin.')->group(function () {
@@ -79,7 +81,7 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     Route::get('/', [KasirController::class, 'index'])->name('index');
     Route::post('/proses', [KasirController::class, 'prosesTransaksi'])->name('proses');
     
-    // ✅ Midtrans Routes
+    // ✅ Midtrans Routes (untuk create token dan process payment)
     Route::post('/create-token', [KasirController::class, 'createPaymentToken'])->name('create-token');
     Route::post('/process-payment', [KasirController::class, 'processMidtransPayment'])->name('process-payment');
     Route::get('/payment-finish', [KasirController::class, 'paymentFinish'])->name('payment-finish');
