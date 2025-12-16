@@ -21,8 +21,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // ✅✅✅ MIDTRANS WEBHOOK (HARUS di luar middleware auth karena dipanggil oleh server Midtrans)
 // PENTING: URL ini HARUS sama dengan yang di set di Midtrans Dashboard
-Route::post('/kasir/midtrans-callback', [KasirController::class, 'midtransCallback'])
-    ->name('kasir.midtrans-callback');
+
 
 // 🔸 PEMILIK (ADMIN) - Akses Penuh
 Route::middleware(['auth', 'role:pemilik'])->prefix('admin')->name('admin.')->group(function () {

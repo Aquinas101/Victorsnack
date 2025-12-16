@@ -6,17 +6,32 @@ use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\RoleMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
+
+    // ================= ROUTING =================
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function ($middleware) {
-        // ✅ Daftarkan middleware kamu di sini
+
+    // ================= MIDDLEWARE =================
+    ->withMiddleware(function (Middleware $middleware) {
+
+        // ✅ Alias middleware custom
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);
+
+        // ✅ BYPASS CSRF (WAJIB untuk API / Midtrans / Webhook)
+        $middleware->validateCsrfTokens(except: [
+            'api/midtrans/callback',
+        ]);
     })
+
+    // ================= EXCEPTIONS =================
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+
+    ->create();
