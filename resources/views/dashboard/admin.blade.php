@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Cek apakah ada data
         if (chartData && chartData.length > 0) {
             new Chart(ctx, {
-                type: 'line',
+                type: 'bar',
                 data: {
                     labels: chartData.map(item => {
                         const [year, month] = item.bulan.split('-');

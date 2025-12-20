@@ -79,7 +79,8 @@
                             $stok = $produk->stok ? $produk->stok->jumlah : 0;
                         @endphp
                         
-                        <div class="border border-gray-200 rounded-lg p-3 hover:shadow-md transition duration-200 {{ $stok == 0 ? 'opacity-50' : '' }}">
+                        <div class="border border-gray-200 rounded-lg p-3 hover:shadow-md transition duration-200 {{ $stok == 0 ? 'opacity-50' : '' }}"
+                             data-produk-id="{{ $produk->id_produk }}">
                             <!-- Gambar/Icon Produk -->
                             <div class="w-full h-24 bg-red-100 rounded-lg flex items-center justify-center mb-3 overflow-hidden">
                                 @if(isset($produk->gambar) && $produk->gambar)
@@ -97,7 +98,9 @@
                             
                             <!-- Stok -->
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs {{ $stok == 0 ? 'text-red-600' : ($stok < 10 ? 'text-yellow-600' : 'text-green-600') }}">
+                                <span class="text-xs {{ $stok == 0 ? 'text-red-600' : ($stok < 10 ? 'text-yellow-600' : 'text-green-600') }}"
+                                      data-stok
+                                      data-stok-value="{{ $stok }}">
                                     <i class="fas fa-box mr-1"></i>Stok: {{ $stok }}
                                 </span>
                             </div>
@@ -109,7 +112,10 @@
                                         @change="selectVarian($event.target.value, {{ $produk->id_produk }})">
                                     <option value="">Pilih Varian</option>
                                     @foreach($produk->varians as $varian)
-                                        <option value="{{ $varian->id_varian }}" data-harga="{{ $varian->harga }}" data-berat="{{ $varian->berat }}">
+                                        <option value="{{ $varian->id_varian }}" 
+                                                data-harga="{{ $varian->harga }}" 
+                                                data-berat="{{ $varian->berat }}"
+                                                data-produk-id="{{ $produk->id_produk }}">
                                             {{ $varian->berat }}g - Rp {{ number_format($varian->harga, 0, ',', '.') }}
                                         </option>
                                     @endforeach
@@ -341,6 +347,69 @@ function kasirApp() {
             }
         },
 
+        // ✅ METHOD BARU: Update Stok UI secara realtime
+        async updateStokUI(items) {
+            for (const item of items) {
+                try {
+                    const response = await fetch(this.getSecureUrl(`{{ url('kasir/varian') }}/${item.id_varian}`), {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Cari semua card produk
+                        const produkCards = document.querySelectorAll(`[data-produk-id]`);
+                        produkCards.forEach(card => {
+                            // Cek apakah card ini punya varian yang baru dibeli
+                            const varianSelects = card.querySelectorAll('select option');
+                            varianSelects.forEach(option => {
+                                if (option.value == item.id_varian) {
+                                    // Ini produk yang stoknya berubah
+                                    const stokElement = card.querySelector('[data-stok]');
+                                    if (stokElement) {
+                                        const newStok = data.data.stok_tersedia;
+                                        
+                                        // Update text stok
+                                        const icon = stokElement.querySelector('i');
+                                        if (icon) {
+                                            stokElement.innerHTML = '';
+                                            stokElement.appendChild(icon);
+                                            stokElement.appendChild(document.createTextNode('Stok: ' + newStok));
+                                        } else {
+                                            stokElement.innerHTML = '<i class="fas fa-box mr-1"></i>Stok: ' + newStok;
+                                        }
+                                        
+                                        stokElement.setAttribute('data-stok-value', newStok);
+                                        
+                                        // Update class warna stok
+                                        stokElement.className = `text-xs ${newStok == 0 ? 'text-red-600' : (newStok < 10 ? 'text-yellow-600' : 'text-green-600')}`;
+                                        stokElement.setAttribute('data-stok', '');
+                                        
+                                        // Update opacity card jika stok habis
+                                        if (newStok == 0) {
+                                            card.classList.add('opacity-50');
+                                            // Disable button
+                                            const button = card.querySelector('button[type="button"]');
+                                            if (button) {
+                                                button.disabled = true;
+                                            }
+                                        } else {
+                                            card.classList.remove('opacity-50');
+                                        }
+                                    }
+                                }
+                            });
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error updating stok UI:', error);
+                }
+            }
+        },
+
         selectVarian(idVarian, idProduk) {
             if (!idVarian) {
                 delete this.selectedVarian[idProduk];
@@ -477,7 +546,6 @@ function kasirApp() {
                 this.isLoading = true;
 
                 try {
-                    // ✅ FIX: Paksa HTTPS untuk fetch URL
                     const url = this.getSecureUrl('{{ route("kasir.proses") }}');
                     
                     const response = await fetch(url, {
@@ -511,6 +579,10 @@ function kasirApp() {
                         this.transaksiId = data.data.id_transaksi;
                         this.cetakUrl = data.data.cetak_url;
                         this.kembalian = data.data.kembalian;
+                        
+                        // ✅ UPDATE STOK UI - REALTIME
+                        await this.updateStokUI(this.keranjang);
+                        
                         this.showSuccessModal = true;
                     } else {
                         alert('Gagal: ' + data.message);
@@ -529,7 +601,6 @@ function kasirApp() {
                 try {
                     console.log('=== STEP 1: Creating Payment Token ===');
                     
-                    // ✅ FIX: Paksa HTTPS untuk fetch URL
                     const tokenUrl = this.getSecureUrl('{{ route("kasir.create-token") }}');
                     
                     // Step 1: Create Midtrans Token
@@ -595,7 +666,6 @@ function kasirApp() {
                     // Step 2: Create Transaction in DB
                     console.log('=== STEP 2: Creating Transaction in DB ===');
                     
-                    // ✅ FIX: Paksa HTTPS untuk fetch URL
                     const createUrl = this.getSecureUrl('{{ route("kasir.process-payment") }}');
                     
                     const createResponse = await fetch(createUrl, {
@@ -641,12 +711,19 @@ function kasirApp() {
                         return;
                     }
 
+                    // Simpan items untuk update stok nanti
+                    const itemsToUpdate = [...this.keranjang];
+
                     window.snap.pay(snapToken, {
-                        onSuccess: (result) => {
+                        onSuccess: async (result) => {
                             console.log('✓ Payment Success:', result);
                             
                             this.transaksiId = createData.transaksi_id;
                             this.cetakUrl = '{{ url("kasir/transaksi") }}/' + createData.transaksi_id + '/cetak';
+                            
+                            // ✅ UPDATE STOK UI - REALTIME
+                            await this.updateStokUI(itemsToUpdate);
+                            
                             this.showSuccessModal = true;
                         },
                         onPending: (result) => {

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto">
+<div class="container mx-auto px-4">
     <!-- Header -->
     <div class="mb-6">
         <h1 class="text-3xl font-bold text-gray-800">
@@ -31,7 +31,7 @@
     @endif
 
     <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6">
         <!-- Total Transaksi -->
         <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 text-white">
             <div class="flex items-center justify-between">
@@ -50,7 +50,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-green-100 text-sm font-medium">Berhasil</p>
-                    <h3 class="text-3xl font-bold mt-2">{{ $transaksis->where('status_transaksi', 'berhasil')->count() }}</h3>
+                    <h3 class="text-3xl font-bold mt-2">
+                        {{ \App\Models\Transaksi::where('status_transaksi', 'berhasil')->count() }}
+                    </h3>
                 </div>
                 <div class="bg-green-400 bg-opacity-30 rounded-full p-3">
                     <i class="fas fa-check-circle text-2xl"></i>
@@ -63,7 +65,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-yellow-100 text-sm font-medium">Pending</p>
-                    <h3 class="text-3xl font-bold mt-2">{{ $transaksis->where('status_transaksi', 'pending')->count() }}</h3>
+                    <h3 class="text-3xl font-bold mt-2">
+                        {{ \App\Models\Transaksi::where('status_transaksi', 'pending')->count() }}
+                    </h3>
                 </div>
                 <div class="bg-yellow-400 bg-opacity-30 rounded-full p-3">
                     <i class="fas fa-clock text-2xl"></i>
@@ -76,7 +80,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-purple-100 text-sm font-medium">Total Pendapatan</p>
-                    <h3 class="text-2xl font-bold mt-2">Rp {{ number_format($transaksis->where('status_transaksi', 'berhasil')->sum('total_harga'), 0, ',', '.') }}</h3>
+                    <h3 class="text-xl lg:text-2xl font-bold mt-2">
+                        Rp {{ number_format(\App\Models\Transaksi::where('status_transaksi', 'berhasil')->sum('total_harga'), 0, ',', '.') }}
+                    </h3>
                 </div>
                 <div class="bg-purple-400 bg-opacity-30 rounded-full p-3">
                     <i class="fas fa-money-bill-wave text-2xl"></i>
@@ -89,7 +95,7 @@
     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
         <!-- Filter Bar -->
         <div class="p-6 border-b border-gray-200 bg-gray-50">
-            <form action="{{ route(role_route('transaksi.index')) }}" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <form action="{{ route(role_route('transaksi.index')) }}" method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Filter Tanggal -->
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Tanggal</label>
@@ -122,10 +128,11 @@
 
                 <!-- Tombol Filter -->
                 <div class="flex items-end space-x-2">
-                    <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition duration-200 text-sm">
+                    <button type="submit" class="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition duration-200 text-sm font-medium">
                         <i class="fas fa-filter mr-1"></i>Filter
                     </button>
-                    <a href="{{ route(role_route('transaksi.index')) }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition duration-200 text-sm">
+                    <a href="{{ route(role_route('transaksi.index')) }}" 
+                       class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition duration-200 text-sm inline-flex items-center justify-center">
                         <i class="fas fa-redo"></i>
                     </a>
                 </div>
@@ -137,86 +144,103 @@
             <table class="w-full">
                 <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">ID Transaksi</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Tanggal</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Kasir</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Total Item</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Total Harga</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Metode</th>
-                        <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider">Aksi</th>
+                        <th class="px-4 lg:px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">ID</th>
+                        <th class="px-4 lg:px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Tanggal</th>
+                        <th class="px-4 lg:px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Kasir</th>
+                        <th class="px-4 lg:px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Item</th>
+                        <th class="px-4 lg:px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Total</th>
+                        <th class="px-4 lg:px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Metode</th>
+                        <th class="px-4 lg:px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider">Status</th>
+                        <th class="px-4 lg:px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200 bg-white">
                     @forelse($transaksis as $transaksi)
                     <tr class="hover:bg-gray-50 transition duration-150">
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
                             <span class="text-sm font-bold text-gray-900">#{{ $transaksi->id_transaksi }}</span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <i class="far fa-calendar mr-1"></i>
-                            {{ $transaksi->tanggal_transaksi->format('d M Y') }}
-                            <br>
-                            <i class="far fa-clock mr-1"></i>
-                            {{ $transaksi->tanggal_transaksi->format('H:i') }} WIB
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">
-                                    <i class="fas fa-user text-blue-600 text-xs"></i>
-                                </div>
-                                <span class="text-sm font-medium text-gray-900">{{ $transaksi->namaKasir }}</span>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div class="flex flex-col">
+                                <span><i class="far fa-calendar mr-1"></i>{{ $transaksi->tanggal_transaksi->format('d M Y') }}</span>
+                                <span class="text-xs"><i class="far fa-clock mr-1"></i>{{ $transaksi->tanggal_transaksi->format('H:i') }} WIB</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2 flex-shrink-0">
+                                    <i class="fas fa-user text-blue-600 text-xs"></i>
+                                </div>
+                                <span class="text-sm font-medium text-gray-900 truncate">{{ $transaksi->pengguna->nama_lengkap ?? 'N/A' }}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
                             <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                {{ $transaksi->totalItem }} item
+                                {{ $transaksi->details->sum('jumlah') }} item
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">
                             Rp {{ number_format($transaksi->total_harga, 0, ',', '.') }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-sm">
                             @if($transaksi->metode_pembayaran == 'tunai')
-                                <span class="text-green-600"><i class="fas fa-money-bill-wave mr-1"></i>Tunai</span>
+                                <span class="text-green-600 flex items-center">
+                                    <i class="fas fa-money-bill-wave mr-1"></i>
+                                    <span class="hidden lg:inline">Tunai</span>
+                                </span>
                             @elseif($transaksi->metode_pembayaran == 'kredit')
-                                <span class="text-blue-600"><i class="fas fa-credit-card mr-1"></i>Kredit</span>
+                                <span class="text-blue-600 flex items-center">
+                                    <i class="fas fa-credit-card mr-1"></i>
+                                    <span class="hidden lg:inline">Kredit</span>
+                                </span>
                             @elseif($transaksi->metode_pembayaran == 'debit')
-                                <span class="text-purple-600"><i class="fas fa-credit-card mr-1"></i>Debit</span>
+                                <span class="text-purple-600 flex items-center">
+                                    <i class="fas fa-credit-card mr-1"></i>
+                                    <span class="hidden lg:inline">Debit</span>
+                                </span>
                             @else
-                                <span class="text-orange-600"><i class="fas fa-wallet mr-1"></i>E-Wallet</span>
+                                <span class="text-orange-600 flex items-center">
+                                    <i class="fas fa-wallet mr-1"></i>
+                                    <span class="hidden lg:inline">E-Wallet</span>
+                                </span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap">
                             @if($transaksi->status_transaksi == 'berhasil')
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                <span class="px-2 lg:px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                     <i class="fas fa-check-circle mr-1"></i>Berhasil
                                 </span>
                             @elseif($transaksi->status_transaksi == 'pending')
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                <span class="px-2 lg:px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                     <i class="fas fa-clock mr-1"></i>Pending
                                 </span>
                             @else
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                <span class="px-2 lg:px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                     <i class="fas fa-times-circle mr-1"></i>Gagal
                                 </span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <td class="px-4 lg:px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                             <div class="flex items-center justify-center space-x-2">
                                 <a href="{{ route(role_route('transaksi.show'), $transaksi->id_transaksi) }}" 
-                                   class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition duration-200 inline-flex items-center text-xs">
-                                    <i class="fas fa-eye mr-1"></i>Detail
+                                   class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg transition duration-200 inline-flex items-center text-xs"
+                                   title="Detail">
+                                    <i class="fas fa-eye"></i>
+                                    <span class="hidden lg:inline ml-1">Detail</span>
                                 </a>
                                 <a href="{{ route(role_route('transaksi.cetak'), $transaksi->id_transaksi) }}" 
                                    target="_blank"
-                                   class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition duration-200 inline-flex items-center text-xs">
-                                    <i class="fas fa-print mr-1"></i>Cetak
+                                   class="bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition duration-200 inline-flex items-center text-xs"
+                                   title="Cetak">
+                                    <i class="fas fa-print"></i>
+                                    <span class="hidden lg:inline ml-1">Cetak</span>
                                 </a>
                                 @if(Auth::user()->role === 'pemilik')
                                 <button onclick="confirmDelete({{ $transaksi->id_transaksi }})" 
-                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition duration-200 inline-flex items-center text-xs">
-                                    <i class="fas fa-trash mr-1"></i>Hapus
+                                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition duration-200 inline-flex items-center text-xs"
+                                        title="Hapus">
+                                    <i class="fas fa-trash"></i>
+                                    <span class="hidden lg:inline ml-1">Hapus</span>
                                 </button>
                                 @endif
                             </div>

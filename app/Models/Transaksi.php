@@ -19,6 +19,8 @@ class Transaksi extends Model
         'order_id_midtrans',
         'id_pengguna',
         'total_harga',
+        'uang_dibayar',
+        'kembalian',
         'metode_pembayaran',
         'status_transaksi',
     ];
@@ -26,6 +28,8 @@ class Transaksi extends Model
     protected $casts = [
         'tanggal_transaksi' => 'datetime',
         'total_harga' => 'decimal:2',
+        'uang_dibayar' => 'decimal:2',
+        'kembalian' => 'decimal:2',
     ];
 
     /**

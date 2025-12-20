@@ -160,9 +160,13 @@
                         <span class="text-xs font-semibold text-green-600 mb-1">
                             {{ number_format($bulan->total_pendapatan / 1000000, 1) }}jt
                         </span>
-                        <div class="w-full bg-gradient-to-t from-purple-600 to-purple-400 rounded-t-lg transition-all duration-300" 
-                             style="height: {{ ($bulan->total_pendapatan / $maxPendapatan * 100) }}%;">
-                        </div>
+                        <div class="w-full bg-gradient-to-t from-purple-600 to-purple-400 rounded-t-lg transition-all duration-300"
+     style="
+        height: {{ ($bulan->total_pendapatan / $maxPendapatan * 100) }}%;
+        min-height: 20px;
+     ">
+</div>
+
                         <span class="text-xs text-gray-600 mt-2">
                             {{ \Carbon\Carbon::parse($bulan->bulan . '-01')->format('M') }}
                         </span>

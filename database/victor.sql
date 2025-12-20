@@ -57,11 +57,11 @@ CREATE TABLE `detail_transaksi` (
   KEY `detail_transaksi_id_varian_foreign` (`id_varian`),
   CONSTRAINT `detail_transaksi_id_transaksi_foreign` FOREIGN KEY (`id_transaksi`) REFERENCES `transaksi` (`id_transaksi`) ON DELETE CASCADE,
   CONSTRAINT `detail_transaksi_id_varian_foreign` FOREIGN KEY (`id_varian`) REFERENCES `varian_produk` (`id_varian`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `detail_transaksi` */
 
-insert  into `detail_transaksi`(`id_detail`,`id_transaksi`,`id_varian`,`jumlah`,`subtotal`) values (1,1,1,2,2000.00),(2,4,1,2,2000.00),(3,5,1,1,1000.00),(4,6,1,1,1000.00),(5,7,1,1,1000.00),(6,8,1,1,1000.00),(7,9,1,1,1000.00),(8,10,1,1,1000.00),(9,11,1,1,1000.00),(10,12,1,1,1000.00),(11,13,1,1,1000.00),(12,14,1,1,1000.00),(13,15,1,1,1000.00),(14,16,1,1,1000.00),(15,17,1,1,1000.00),(16,18,1,1,1000.00),(17,19,1,1,1000.00),(18,20,1,1,1000.00);
+insert  into `detail_transaksi`(`id_detail`,`id_transaksi`,`id_varian`,`jumlah`,`subtotal`) values (1,1,1,1,12000.00),(2,2,1,2,24000.00),(3,3,1,1,12000.00),(4,4,1,2,24000.00),(5,5,1,1,12000.00);
 
 /*Table structure for table `failed_jobs` */
 
@@ -153,7 +153,7 @@ CREATE TABLE `pengguna` (
 
 /*Data for the table `pengguna` */
 
-insert  into `pengguna`(`id_pengguna`,`nama_lengkap`,`tanggal_lahir`,`tempat_lahir`,`username`,`password`,`role`,`create_at`) values (1,'Victor Pemilik','1980-01-15','Jakarta','pemilik','$2y$12$qkSJuATIrV7w6pE.SarlCeGf6di7XRqxZWkHWl6P8dRXC5qa44z7K','pemilik','2025-12-13 10:02:39'),(2,'Budi Karyawan','1995-08-10','Surabaya','budi','$2y$12$bJ1VeAnOP/TlsG3Cp2HgMeNT1bLbkM/na59zifyCLaX0TeENXwqnW','karyawan','2025-12-13 10:02:39'),(3,'Andi Karyawan','1992-11-05','Bandung','andi','$2y$12$W/Ijc7ZLGlvXqp32ESD/nu7sT37g.vh2fZEfDwbjJch8b9OKhkFZu','karyawan','2025-12-13 10:02:39'),(4,'Siti Kasir','1998-03-25','Yogyakarta','siti','$2y$12$K7mvCPlrXEFYqW8JKmCa6eE4I6LgK0mViYu2/2UwDFqoR4QmyyqM6','kasir','2025-12-13 10:02:40'),(5,'Dewi Kasir','1999-07-18','Malang','dewi','$2y$12$RQvG5wEca3ocPM0WYSwDGeYiQkCZPCTpJXBiUEnWy9sTKmxte0j4O','kasir','2025-12-13 10:02:40');
+insert  into `pengguna`(`id_pengguna`,`nama_lengkap`,`tanggal_lahir`,`tempat_lahir`,`username`,`password`,`role`,`create_at`) values (1,'Victor Pemilik','2001-01-12','Yogyakarta','pemilik','$2y$12$0yHfq91dRl31DYtjK/BS3eereYQi2YppHsce.fTqQdNp29np8s1P2','pemilik','2025-12-17 07:06:08'),(2,'Budi Karyawan','1995-08-10','Surabaya','budi','$2y$12$YugZpvJS7qlFe8khTedWCOrDlVia16BRtz.TOQRCSMkQYlsDys8xC','karyawan','2025-12-17 07:06:09'),(3,'Andi Karyawan','1992-11-05','Bandung','andi','$2y$12$5nwqgjJ/.IZUrg0/klTXE.bcwHiqieiAsXHs/1HGab5iFN/yZpERu','karyawan','2025-12-17 07:06:09'),(4,'Siti Kasir','1998-03-25','Yogyakarta','siti','$2y$12$qhLBhf5bbvCi8WRpnodyy.vn18Jq39ty8z.V58ytVSaB4d06YAR2y','kasir','2025-12-17 07:06:09'),(5,'Dewi Kasir','1999-07-18','Malang','dewi','$2y$12$iiRoICDpEUTpYhI5r1NcEud2UyfgLwFwef8Rp1Uyda94YxjwO.e/S','kasir','2025-12-17 07:06:10');
 
 /*Table structure for table `produk` */
 
@@ -167,11 +167,11 @@ CREATE TABLE `produk` (
   `create_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `update_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id_produk`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `produk` */
 
-insert  into `produk`(`id_produk`,`nama_produk`,`kategori`,`gambar`,`create_at`,`update_at`) values (1,'Kripik Udang','Snack','uploads/produk/1765620266_1.drawio.png','2025-12-13 17:04:26','2025-12-13 17:04:26');
+insert  into `produk`(`id_produk`,`nama_produk`,`kategori`,`gambar`,`create_at`,`update_at`) values (1,'kripik pisang','Keripik','uploads/produk/1765955748_logo.PNG','2025-12-17 14:15:48','2025-12-17 14:15:48'),(2,'basreng cili oil','Snack','uploads/produk/1766155010_Untitled Diagram-alur sistem baru2.drawio.png','2025-12-19 21:36:50','2025-12-19 21:36:50');
 
 /*Table structure for table `stok` */
 
@@ -186,11 +186,11 @@ CREATE TABLE `stok` (
   PRIMARY KEY (`id_stok`),
   KEY `stok_id_produk_foreign` (`id_produk`),
   CONSTRAINT `stok_id_produk_foreign` FOREIGN KEY (`id_produk`) REFERENCES `produk` (`id_produk`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `stok` */
 
-insert  into `stok`(`id_stok`,`id_produk`,`jumlah`,`satuan`,`update_at`) values (1,1,10.00,'kg','2025-12-13 10:23:47');
+insert  into `stok`(`id_stok`,`id_produk`,`jumlah`,`satuan`,`update_at`) values (1,1,3.50,'kg','2025-12-18 13:28:50'),(2,2,17.75,'kg','2025-12-19 14:39:10');
 
 /*Table structure for table `transaksi` */
 
@@ -201,17 +201,19 @@ CREATE TABLE `transaksi` (
   `order_id_midtrans` varchar(255) DEFAULT NULL,
   `id_pengguna` bigint(20) unsigned NOT NULL,
   `total_harga` decimal(10,2) NOT NULL,
+  `uang_dibayar` decimal(10,2) DEFAULT NULL,
+  `kembalian` decimal(10,2) DEFAULT NULL,
   `metode_pembayaran` enum('tunai','kredit','debit','dompet_digital') NOT NULL,
   `tanggal_transaksi` timestamp NOT NULL DEFAULT current_timestamp(),
   `status_transaksi` enum('berhasil','pending','gagal') NOT NULL DEFAULT 'pending',
   PRIMARY KEY (`id_transaksi`),
   KEY `transaksi_id_pengguna_foreign` (`id_pengguna`),
   CONSTRAINT `transaksi_id_pengguna_foreign` FOREIGN KEY (`id_pengguna`) REFERENCES `pengguna` (`id_pengguna`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `transaksi` */
 
-insert  into `transaksi`(`id_transaksi`,`order_id_midtrans`,`id_pengguna`,`total_harga`,`metode_pembayaran`,`tanggal_transaksi`,`status_transaksi`) values (1,'TRX-1765621574-4',4,2000.00,'dompet_digital','2025-12-13 17:26:15','berhasil'),(4,'TRX-1765622193-4',4,2000.00,'dompet_digital','2025-12-13 17:36:33','pending'),(5,'TRX-1765631499-4',4,1000.00,'dompet_digital','2025-12-13 20:11:40','pending'),(6,'TRX-1765632021-4',4,1000.00,'dompet_digital','2025-12-13 20:20:22','pending'),(7,'TRX-1765632167-4',4,1000.00,'dompet_digital','2025-12-13 20:22:48','pending'),(8,'TRX-1765632743-4',4,1000.00,'dompet_digital','2025-12-13 20:32:24','pending'),(9,'TRX-1765632935-4',4,1000.00,'dompet_digital','2025-12-13 20:35:36','pending'),(10,'TRX-1765633904-4',4,1000.00,'dompet_digital','2025-12-13 20:51:46','pending'),(11,'TRX-1765710756-4',4,1000.00,'dompet_digital','2025-12-14 18:12:40','pending'),(12,'TRX-1765710768-4',4,1000.00,'dompet_digital','2025-12-14 18:12:52','pending'),(13,'TRX-1765710796-4',4,1000.00,'dompet_digital','2025-12-14 18:13:18','pending'),(14,'TRX-1765711030-4',4,1000.00,'dompet_digital','2025-12-14 18:17:14','pending'),(15,'TRX-1765711749-4',4,1000.00,'dompet_digital','2025-12-14 18:29:12','pending'),(16,'TRX-1765712565-4',4,1000.00,'dompet_digital','2025-12-14 18:42:50','pending'),(17,'TRX-1765713096-4',4,1000.00,'dompet_digital','2025-12-14 18:51:39','pending'),(18,'TRX-1765713245-4',4,1000.00,'dompet_digital','2025-12-14 18:54:08','pending'),(19,'TRX-1765718263-4',4,1000.00,'dompet_digital','2025-12-14 20:17:45','berhasil'),(20,'TRX-1765720362-4',4,1000.00,'dompet_digital','2025-12-14 20:52:46','pending');
+insert  into `transaksi`(`id_transaksi`,`order_id_midtrans`,`id_pengguna`,`total_harga`,`uang_dibayar`,`kembalian`,`metode_pembayaran`,`tanggal_transaksi`,`status_transaksi`) values (1,'TRX-1765956664-4',4,12000.00,NULL,NULL,'dompet_digital','2025-12-17 14:31:06','berhasil'),(2,NULL,4,24000.00,50000.00,26000.00,'tunai','2025-12-17 14:37:06','berhasil'),(3,'TRX-1766064335-4',4,12000.00,NULL,NULL,'dompet_digital','2025-12-18 20:25:39','berhasil'),(4,'TRX-1766064512-4',4,24000.00,NULL,NULL,'dompet_digital','2025-12-18 20:28:34','berhasil'),(5,NULL,4,12000.00,20000.00,8000.00,'tunai','2025-12-19 21:39:10','berhasil');
 
 /*Table structure for table `varian_produk` */
 
@@ -225,11 +227,11 @@ CREATE TABLE `varian_produk` (
   PRIMARY KEY (`id_varian`),
   KEY `varian_produk_id_produk_foreign` (`id_produk`),
   CONSTRAINT `varian_produk_id_produk_foreign` FOREIGN KEY (`id_produk`) REFERENCES `produk` (`id_produk`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `varian_produk` */
 
-insert  into `varian_produk`(`id_varian`,`id_produk`,`berat`,`harga`) values (1,1,250,1000.00);
+insert  into `varian_produk`(`id_varian`,`id_produk`,`berat`,`harga`) values (1,2,250,12000.00),(2,1,250,12000.00);
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

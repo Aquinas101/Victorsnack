@@ -176,6 +176,7 @@
             cursor: pointer;
             font-size: 14px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
         }
 
         .print-button:hover {
@@ -210,7 +211,7 @@
             </div>
             <div class="info-row">
                 <span>Kasir:</span>
-                <span>{{ $transaksi->pengguna->nama_lengkap }}</span>
+                <span>{{ $transaksi->pengguna->nama_lengkap ?? 'N/A' }}</span>
             </div>
             <div class="info-row">
                 <span>Status:</span>
@@ -242,7 +243,7 @@
         <div class="total-section">
             <div class="total-row">
                 <span>Total Item:</span>
-                <strong>{{ $transaksi->totalItem }} item</strong>
+                <strong>{{ $transaksi->details->sum('jumlah') }} item</strong>
             </div>
             <div class="total-row grand-total">
                 <span>TOTAL:</span>
@@ -267,21 +268,15 @@
                 </strong>
             </div>
             
-            @if($transaksi->metode_pembayaran == 'tunai')
-                @php
-                    // Untuk tunai, kita asumsikan uang diterima = total (karena tidak ada field uang_diterima)
-                    // Atau bisa ditambahkan field di database jika diperlukan
-                @endphp
-                {{-- Uncomment jika ada field uang_diterima di database
+            @if($transaksi->metode_pembayaran == 'tunai' && $transaksi->uang_dibayar)
                 <div class="info-row">
                     <span>Uang Diterima:</span>
-                    <span>Rp {{ number_format($transaksi->uang_diterima, 0, ',', '.') }}</span>
+                    <span>Rp {{ number_format($transaksi->uang_dibayar, 0, ',', '.') }}</span>
                 </div>
                 <div class="info-row">
                     <span>Kembalian:</span>
-                    <strong>Rp {{ number_format($transaksi->uang_diterima - $transaksi->total_harga, 0, ',', '.') }}</strong>
+                    <strong>Rp {{ number_format($transaksi->kembalian ?? 0, 0, ',', '.') }}</strong>
                 </div>
-                --}}
             @endif
 
             @if($transaksi->order_id_midtrans)
@@ -302,8 +297,12 @@
     </div>
 
     <script>
-        // Auto print saat halaman dimuat (opsional)
-        // window.onload = function() { window.print(); }
+        // Auto print saat halaman dimuat (opsional, uncomment jika ingin auto print)
+        // window.onload = function() { 
+        //     setTimeout(function() {
+        //         window.print(); 
+        //     }, 500);
+        // }
     </script>
 </body>
 </html>

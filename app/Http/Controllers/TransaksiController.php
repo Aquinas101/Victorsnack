@@ -63,6 +63,7 @@ class TransaksiController extends Controller
             'keranjang.*.subtotal' => 'required|numeric|min:0',
             'total_harga' => 'required|numeric|min:0',
             'metode_pembayaran' => 'required|in:tunai,kredit,debit,dompet_digital',
+            'uang_dibayar' => 'nullable|numeric|min:0',
         ], [
             'keranjang.required' => 'Keranjang tidak boleh kosong',
             'keranjang.min' => 'Minimal harus ada 1 produk',
@@ -84,10 +85,21 @@ class TransaksiController extends Controller
                 }
             }
 
+            // Hitung kembalian jika tunai
+            $uangDibayar = null;
+            $kembalian = null;
+            
+            if ($request->metode_pembayaran === 'tunai' && $request->filled('uang_dibayar')) {
+                $uangDibayar = $request->uang_dibayar;
+                $kembalian = $uangDibayar - $request->total_harga;
+            }
+
             // Buat transaksi
             $transaksi = Transaksi::create([
                 'id_pengguna' => Auth::id(),
                 'total_harga' => $request->total_harga,
+                'uang_dibayar' => $uangDibayar,
+                'kembalian' => $kembalian,
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'status_transaksi' => 'berhasil',
             ]);

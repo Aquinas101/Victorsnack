@@ -12,6 +12,15 @@ use App\Http\Controllers\KasirController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\DashboardController;
 
+// 🔹 Halaman Landing Page (Root)
+Route::get('/', function () {
+    return view('landingpage.victorsnack');
+})->name('home');
+
+Route::get('/victor', function () {
+    return view('landingpage.victorsnack');
+});
+
 // 🔹 Halaman Login
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
@@ -94,21 +103,4 @@ Route::middleware(['auth', 'role:kasir'])->prefix('kasir')->name('kasir.')->grou
     Route::get('/transaksi/{id}/cetak', [TransaksiController::class, 'cetakStruk'])->name('transaksi.cetak');
     
     Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
-});
-
-// 🔹 Redirect default
-Route::get('/', function () {
-    if (Auth::check()) {
-        $user = Auth::user();
-        
-        if ($user->role === 'pemilik') {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->role === 'karyawan') {
-            return redirect()->route('karyawan.dashboard');
-        } elseif ($user->role === 'kasir') {
-            return redirect()->route('kasir.dashboard');
-        }
-    }
-    
-    return redirect('/login');
 });

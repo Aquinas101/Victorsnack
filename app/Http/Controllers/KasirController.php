@@ -179,10 +179,21 @@ class KasirController extends Controller
                 }
             }
 
+            // Hitung kembalian jika tunai
+            $uangDibayar = null;
+            $kembalian = null;
+            
+            if ($request->metode_pembayaran === 'tunai' && $request->filled('uang_diterima')) {
+                $uangDibayar = $request->uang_diterima;
+                $kembalian = $uangDibayar - $request->total_harga;
+            }
+
             // Buat transaksi
             $transaksi = Transaksi::create([
                 'id_pengguna' => Auth::id(),
                 'total_harga' => $request->total_harga,
+                'uang_dibayar' => $uangDibayar,
+                'kembalian' => $kembalian,
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'status_transaksi' => 'berhasil',
             ]);
@@ -205,18 +216,14 @@ class KasirController extends Controller
 
             DB::commit();
 
-            $kembalian = 0;
-            if ($request->metode_pembayaran === 'tunai' && $request->filled('uang_diterima')) {
-                $kembalian = $request->uang_diterima - $request->total_harga;
-            }
-
             return response()->json([
                 'success' => true,
                 'message' => 'Transaksi berhasil!',
                 'data' => [
                     'id_transaksi' => $transaksi->id_transaksi,
                     'total_harga' => $transaksi->total_harga,
-                    'kembalian' => $kembalian,
+                    'uang_dibayar' => $transaksi->uang_dibayar,
+                    'kembalian' => $transaksi->kembalian,
                     'cetak_url' => route('kasir.transaksi.cetak', $transaksi->id_transaksi),
                 ]
             ]);
@@ -468,6 +475,8 @@ class KasirController extends Controller
                 'order_id_midtrans' => $request->order_id,
                 'id_pengguna' => $userId,
                 'total_harga' => $totalHarga,
+                'uang_dibayar' => null, // Digital payment tidak ada uang dibayar
+                'kembalian' => null,    // Digital payment tidak ada kembalian
                 'metode_pembayaran' => 'dompet_digital',
                 'status_transaksi' => 'pending', // ✅ PENDING dulu, nanti webhook yang ubah
             ]);
