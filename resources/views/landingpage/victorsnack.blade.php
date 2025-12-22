@@ -93,15 +93,15 @@
     <!-- Navbar -->
     <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-lg">
         <div class="container mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-red-600 to-red-800 rounded-lg flex items-center justify-center">
-                        <i class="fas fa-cookie-bite text-white text-2xl"></i>
-                    </div>
-                    <span class="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
-                        Victor Snack
-                    </span>
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-red-600 to-red-800 rounded-lg flex items-center justify-center overflow-hidden">
+                    <img src="{{ asset('img/logo.PNG') }}" alt="Logo Victor Snack" class="w-10 h-10 object-contain">
                 </div>
+                <span class="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
+                    Victor Snack
+                </span>
+            </div>
                 
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#home" class="text-gray-700 hover:text-red-600 font-medium transition">Beranda</a>
@@ -159,11 +159,11 @@
                     <!-- Stats -->
                     <div class="grid grid-cols-3 gap-6 mt-12">
                         <div class="text-center">
-                            <div class="text-4xl font-bold text-yellow-300">5+</div>
+                            <div class="text-4xl font-bold text-yellow-300">3+</div>
                             <div class="text-red-200 text-sm mt-1">Tahun Berpengalaman</div>
                         </div>
                         <div class="text-center">
-                            <div class="text-4xl font-bold text-yellow-300">15+</div>
+                            <div class="text-4xl font-bold text-yellow-300">10+</div>
                             <div class="text-red-200 text-sm mt-1">Varian Produk</div>
                         </div>
                         <div class="text-center">
@@ -192,11 +192,11 @@
         <div class="container mx-auto px-6">
             <div class="grid md:grid-cols-2 gap-12 items-center">
                 <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1599490659213-e2b9527bd087?w=600&h=400&fit=crop" 
+                    <img src="{{ asset('img/logo.PNG') }}"  
                          alt="Victor Snack Store" 
                          class="rounded-3xl shadow-2xl">
                     <div class="absolute -bottom-6 -right-6 bg-gradient-to-br from-red-600 to-red-800 text-white p-8 rounded-2xl shadow-xl">
-                        <div class="text-4xl font-bold mb-1">5+</div>
+                        <div class="text-4xl font-bold mb-1">3+</div>
                         <div class="text-sm">Tahun Berpengalaman</div>
                     </div>
                 </div>
@@ -630,8 +630,7 @@
                             </div>
                             <div>
                                 <h4 class="font-bold mb-1">Jam Operasional</h4>
-                                <p class="text-gray-400">Senin - Sabtu: 08.00 - 20.00 WIB</p>
-                                <p class="text-gray-400">Minggu: 09.00 - 17.00 WIB</p>
+                                <p class="text-gray-400">Senin - Minggu: 10.00 - 22.00 WIB</p>
                             </div>
                         </div>
                     </div>
@@ -656,7 +655,7 @@
                     <h3 class="text-2xl font-bold mb-6">Lokasi Kami</h3>
                     <div class="rounded-lg overflow-hidden mb-6">
                         <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126748.56211042157!2d110.36069795820312!3d-7.797068299999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a5787bd5b6bc5%3A0x21723fd4d3684f71!2sYogyakarta%2C%20Kota%20Yogyakarta%2C%20Daerah%20Istimewa%20Yogyakarta!5e0!3m2!1sid!2sid!4v1234567890123!5m2!1sid!2sid" 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3953.1325197342812!2d110.39243379999999!3d-7.7757700000000005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e7a590017880419%3A0xd5fb2f30e45104a3!2sVictor%20Snack%20Yogyakarta!5e0!3m2!1sid!2sid!4v1766409937039!5m2!1sid!2sid" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" 
                             width="100%" 
                             height="300" 
                             style="border:0;" 
@@ -676,15 +675,15 @@
                         <div class="space-y-2 text-sm">
                             <div class="flex items-center text-gray-400">
                                 <i class="fas fa-map-marker-alt w-5 text-red-500"></i>
-                                <span>Jl. Raya Snack No. 123, Yogyakarta</span>
+                                <span>Jl. Mrican Baru No.27, Mrican, Caturtunggal, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55281</span>
                             </div>
                             <div class="flex items-center text-gray-400">
                                 <i class="fas fa-clock w-5 text-red-500"></i>
-                                <span>Senin - Sabtu: 08.00 - 20.00 WIB</span>
+                                <span>Senin - Sabtu: 10.00 - 22.00 WIB</span>
                             </div>
                             <div class="flex items-center text-gray-400">
                                 <i class="fas fa-phone w-5 text-red-500"></i>
-                                <span>+62 812-3456-7890</span>
+                                <span>081392705406</span>
                             </div>
                         </div>
                     </div>

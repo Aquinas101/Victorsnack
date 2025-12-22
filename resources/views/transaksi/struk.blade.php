@@ -196,7 +196,7 @@
             <h1>VICTOR SNACK</h1>
             <p>Depan Kampus Sadhar Mrican</p>
             <p>Telp: 081392705406</p>
-            <p>www.victorsnack.com</p>
+            <p>www.victor-snack.com</p>
         </div>
 
         <!-- Info Transaksi -->

@@ -228,7 +228,7 @@
         <h1>VICTOR SNACK</h1>
         <h2>LAPORAN KEUANGAN</h2>
         <div class="info">
-            Jl. Contoh No. 123, Jakarta | Telp: (021) 1234-5678 | Email: info@victorsnack.com
+            Jl. Mrican Baru No.27, Mrican, Caturtunggal, Kec. Depok, Kabupaten Sleman, Daerah Istimewa Yogyakarta 55281
         </div>
     </div>
     
@@ -260,7 +260,7 @@
     </div>
     
     <!-- Breakdown Metode Pembayaran -->
-    <div class="section-title">📊 BREAKDOWN METODE PEMBAYARAN</div>
+    <div class="section-title">RINCIAN METODE PEMBAYARAN</div>
     
     <table>
         <thead>
@@ -276,10 +276,10 @@
                 @php
                     $persentase = $totalPendapatan > 0 ? ($metode->total_pendapatan / $totalPendapatan * 100) : 0;
                     $icon = match($metode->metode_pembayaran) {
-                        'tunai' => '💵',
-                        'kredit' => '💳',
-                        'debit' => '💳',
-                        default => '📱'
+                        'tunai' => 'TUNAI',
+                        'kredit' => 'KREDIT',
+                        'debit' => 'DEBIT',
+                        default => 'DIGITAL'
                     };
                     $barColor = match($metode->metode_pembayaran) {
                         'tunai' => 'bar-green',
@@ -290,7 +290,7 @@
                 @endphp
                 <tr>
                     <td>
-                        <strong>{{ $icon }} {{ ucfirst(str_replace('_', ' ', $metode->metode_pembayaran)) }}</strong>
+                        <strong>{{ $icon }} - {{ ucfirst(str_replace('_', ' ', $metode->metode_pembayaran)) }}</strong>
                     </td>
                     <td class="text-center">
                         <strong>{{ $metode->jumlah_transaksi }}</strong>
@@ -316,7 +316,7 @@
     </table>
     
     <!-- Performa Kasir -->
-    <div class="section-title">👥 PERFORMA KASIR</div>
+    <div class="section-title">PERFORMA KASIR</div>
     
     <table>
         <thead>
@@ -333,11 +333,11 @@
             <tr>
                 <td class="text-center">
                     @if($index == 0)
-                        <span class="badge badge-gold">🏆 #1</span>
+                        <span class="badge badge-gold">#1</span>
                     @elseif($index == 1)
-                        <span class="badge badge-silver">🥈 #2</span>
+                        <span class="badge badge-silver">#2</span>
                     @elseif($index == 2)
-                        <span class="badge badge-bronze">🥉 #3</span>
+                        <span class="badge badge-bronze">#3</span>
                     @else
                         <strong>#{{ $index + 1 }}</strong>
                     @endif

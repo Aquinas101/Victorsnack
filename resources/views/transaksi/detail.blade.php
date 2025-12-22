@@ -1,35 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
-<<<<<<< HEAD
-<div class="container mx-auto max-w-5xl px-4">
-    <!-- Header -->
-    <div class="mb-6">
-        <div class="flex items-center space-x-2 text-sm text-gray-600 mb-3">
-            @if(Auth::user()->role === 'kasir')
-                <a href="{{ route('kasir.riwayat.index') }}" class="hover:text-red-600 transition">
-                    <i class="fas fa-shopping-cart"></i> Data Transaksi
-                </a>
-            @else
-                <a href="{{ route(role_route('transaksi.index')) }}" class="hover:text-red-600 transition">
-                    <i class="fas fa-shopping-cart"></i> Data Transaksi
-                </a>
-            @endif
-            <i class="fas fa-chevron-right text-xs"></i>
-            <span class="text-gray-900 font-medium">Detail Transaksi</span>
-        </div>
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
-                    <i class="fas fa-receipt text-red-600 mr-2"></i>Detail Transaksi
-=======
 @php
     $backRoute = Auth::user()->role === 'kasir'
         ? 'kasir.transaksi.saya'
         : role_route('transaksi.index');
 @endphp
 
-<div class="container mx-auto max-w-5xl">
+<div class="container mx-auto max-w-5xl px-4">
     <!-- Header -->
     <div class="mb-6">
         <div class="flex items-center space-x-2 text-sm text-gray-600 mb-3">
@@ -40,11 +18,10 @@
             <span class="text-gray-900 font-medium">Detail Transaksi</span>
         </div>
 
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-800">
-                    <i class="fas fa-receipt text-red-600 mr-2"></i> Detail Transaksi
->>>>>>> e973cc84542e2ddfd4f6022de801c68fe95e42f1
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
+                    <i class="fas fa-receipt text-red-600 mr-2"></i>Detail Transaksi
                 </h1>
                 <p class="text-gray-600 mt-1">
                     ID Transaksi:
@@ -54,11 +31,7 @@
 
             <a href="{{ route(role_route('transaksi.cetak'), $transaksi->id_transaksi) }}"
                target="_blank"
-<<<<<<< HEAD
                class="bg-green-600 hover:bg-green-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg shadow-lg transition duration-200 flex items-center justify-center space-x-2">
-=======
-               class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow-lg transition flex items-center space-x-2">
->>>>>>> e973cc84542e2ddfd4f6022de801c68fe95e42f1
                 <i class="fas fa-print"></i>
                 <span>Cetak Struk</span>
             </a>
@@ -76,13 +49,8 @@
     @endif
 
     <!-- Info Transaksi -->
-<<<<<<< HEAD
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
         <!-- Card Status -->
-=======
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <!-- Status -->
->>>>>>> e973cc84542e2ddfd4f6022de801c68fe95e42f1
         <div class="bg-white rounded-xl shadow-lg p-6">
             <p class="text-sm text-gray-600 mb-2">Status Transaksi</p>
             @if($transaksi->status_transaksi === 'berhasil')
@@ -131,13 +99,8 @@
     <!-- Detail Produk -->
     <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
         <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4">
-<<<<<<< HEAD
             <h2 class="text-lg md:text-xl font-semibold text-white">
                 <i class="fas fa-list mr-2"></i>Detail Produk
-=======
-            <h2 class="text-xl font-semibold text-white">
-                <i class="fas fa-list mr-2"></i> Detail Produk
->>>>>>> e973cc84542e2ddfd4f6022de801c68fe95e42f1
             </h2>
         </div>
 
@@ -145,7 +108,6 @@
             <table class="w-full">
                 <thead class="bg-gray-50 border-b">
                     <tr>
-<<<<<<< HEAD
                         <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">No</th>
                         <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Produk</th>
                         <th class="px-4 lg:px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Varian</th>
@@ -186,37 +148,12 @@
                             Rp {{ number_format($detail->subtotal, 0, ',', '.') }}
                         </td>
                     </tr>
-=======
-                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase">No</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase">Produk</th>
-                        <th class="px-6 py-3 text-left text-xs font-semibold uppercase">Varian</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase">Harga</th>
-                        <th class="px-6 py-3 text-center text-xs font-semibold uppercase">Qty</th>
-                        <th class="px-6 py-3 text-right text-xs font-semibold uppercase">Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y">
-                    @foreach($transaksi->details as $i => $detail)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">{{ $i + 1 }}</td>
-                            <td class="px-6 py-4 font-semibold">{{ $detail->namaProduk }}</td>
-                            <td class="px-6 py-4">{{ $detail->beratVarian }} gram</td>
-                            <td class="px-6 py-4 text-right">
-                                Rp {{ number_format($detail->varian->harga, 0, ',', '.') }}
-                            </td>
-                            <td class="px-6 py-4 text-center font-bold">{{ $detail->jumlah }}</td>
-                            <td class="px-6 py-4 text-right font-bold text-green-600">
-                                Rp {{ number_format($detail->subtotal, 0, ',', '.') }}
-                            </td>
-                        </tr>
->>>>>>> e973cc84542e2ddfd4f6022de801c68fe95e42f1
                     @endforeach
                 </tbody>
             </table>
         </div>
     </div>
 
-<<<<<<< HEAD
     <!-- Summary & Pembayaran -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         <!-- Summary -->
@@ -314,19 +251,11 @@
 
     <!-- Action Buttons -->
     <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-        @if(Auth::user()->role === 'kasir')
-            <a href="{{ route('kasir.riwayat.index') }}" 
-               class="w-full sm:w-auto px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition duration-200 inline-flex items-center justify-center">
-                <i class="fas fa-arrow-left mr-2"></i>
-                <span>Kembali</span>
-            </a>
-        @else
-            <a href="{{ route(role_route('transaksi.index')) }}" 
-               class="w-full sm:w-auto px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition duration-200 inline-flex items-center justify-center">
-                <i class="fas fa-arrow-left mr-2"></i>
-                <span>Kembali</span>
-            </a>
-        @endif
+        <a href="{{ route($backRoute) }}" 
+           class="w-full sm:w-auto px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition duration-200 inline-flex items-center justify-center">
+            <i class="fas fa-arrow-left mr-2"></i>
+            <span>Kembali</span>
+        </a>
         
         @if(Auth::user()->role === 'pemilik')
         <button onclick="confirmDelete()" 
@@ -334,20 +263,6 @@
             <i class="fas fa-trash mr-2"></i>
             <span>Hapus Transaksi</span>
         </button>
-=======
-    <!-- Action -->
-    <div class="mt-6 flex justify-between">
-        <a href="{{ route($backRoute) }}"
-           class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-lg transition inline-flex items-center">
-            <i class="fas fa-arrow-left mr-2"></i> Kembali
-        </a>
-
-        @if(Auth::user()->role === 'pemilik')
-            <button onclick="confirmDelete()"
-                    class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition inline-flex items-center">
-                <i class="fas fa-trash mr-2"></i> Hapus Transaksi
-            </button>
->>>>>>> e973cc84542e2ddfd4f6022de801c68fe95e42f1
         @endif
     </div>
 
@@ -367,7 +282,6 @@ function confirmDelete() {
         document.getElementById('delete-form').submit();
     }
 }
-<<<<<<< HEAD
 
 // Auto print on load if from success redirect
 @if(session('auto_print'))
@@ -377,7 +291,5 @@ function confirmDelete() {
         }, 500);
     }
 @endif
-=======
->>>>>>> e973cc84542e2ddfd4f6022de801c68fe95e42f1
 </script>
 @endsection
